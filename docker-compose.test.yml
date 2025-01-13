@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  neo4j:
+    image: neo4j:latest
+    environment:
+      - NEO4J_AUTH=neo4j/test12345678
+
+
+  tests:
+    build: .
+    depends_on:
+      - neo4j
+    environment:
+      - NEO4J_BOLT_URL=bolt://neo4j:test12345678@neo4j:7687
+    command: './wait-for-it.sh -t 60 neo4j:7687 -- python -m unittest discover -s ./RecommendationSystem/.'

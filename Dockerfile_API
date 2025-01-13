@@ -1,0 +1,43 @@
+FROM python:3.10
+
+ENV PYTHONUNBUFFERED=1
+
+ENV PYTHONPATH "${PYTHONPATH}:/code"
+ENV PYTHONHASHSEED=1
+
+WORKDIR /code
+
+COPY Pipfile .
+COPY Pipfile.lock .
+RUN python -m pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir pipenv
+RUN apt-get update && apt-get install -y libgeos-dev sed ca-certificates && \
+    sed -i 's/deb.debian.org/mirror.cs.uni-duesseldorf.de/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
+    rm -fr /var/lib/apt/lists/*
+RUN pipenv install --deploy --system && pipenv --clear
+
+RUN apt-get update                             \
+ && apt-get install -y --no-install-recommends \
+    curl firefox-esr                           \
+ && rm -fr /var/lib/apt/lists/*
+
+RUN apt-get update                             \
+ && apt-get install -y --no-install-recommends \
+    nvidia-cuda-toolkit                        \
+ && rm -fr /var/lib/apt/lists/*
+
+ RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+
+
+RUN wget -nv https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x mc && mv mc /usr/local/bin/mc
+
+COPY RecommendationSystem ./RecommendationSystem
+
+COPY wait-for-it.sh .
+
+RUN chmod +x wait-for-it.sh
+
+CMD sh -c "./wait-for-it.sh -t 60 neo4j:7687 -- python3 ./RecommendationSystem/API/manage.py runserver 0.0.0.0:8000"
+

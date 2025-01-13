@@ -1,0 +1,29 @@
+version: "3"
+
+
+services:
+  neo4j:
+    image: neo4j:latest
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+    volumes:
+      - ./neo4jDB/conf:/conf
+      - ./neo4jDB/data:/data
+      - ./neo4jDB/import:/import
+      - ./neo4jDB/logs:/logs
+      - ./neo4jDB/plugins:/plugins
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+
+  django_api:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - neo4j
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    command: './wait-for-it.sh -t 60 neo4j:7687 -- python3 ./RecommendationSystem/API/manage.py runserver 0.0.0.0:8000'
