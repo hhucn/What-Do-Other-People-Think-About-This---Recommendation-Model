@@ -27,7 +27,7 @@ We provide you with the following `docker-compose` files to run the different co
 * `docker-compose.scraping.yml`: Runs the news agency scraper to retrieve articles and comments from various news agencies.
 * `docker-compose.test.yml`: Runs the tests for the system.
 * `docker-compose.api.yml`: Runs the comment-recommendation systems.
-* `docker-compose.csv.yml': Import datasets via csv file into the database. Make sure to update the path to the dataset in `RecommendationSystem/Read_CSV/read_csv.py`
+* `docker-compose.csv.yml`: Import datasets via csv file into the database. Make sure to update the path to the dataset in `RecommendationSystem/Read_CSV/read_csv.py`
 
 
 
